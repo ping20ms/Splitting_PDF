@@ -49,6 +49,7 @@
             <button type="submit">Upload & Split</button>
         </form>
         <p id="status"></p>
+        <a id="downloadLink" style="display:none;" download>Download Split PDFs</a>
     </div>
 
     <script>
@@ -70,9 +71,17 @@
                 method: "POST",
                 body: formData
             })
-            .then(response => response.text())
+            .then(response => response.json())
             .then(data => {
-                document.getElementById("status").innerText = data;
+                if (data.success) {
+                    document.getElementById("status").innerText = "PDF split successfully!";
+                    let downloadLink = document.getElementById("downloadLink");
+                    downloadLink.href = data.download_url;
+                    downloadLink.style.display = "block";
+                    downloadLink.click(); // Auto-download the file
+                } else {
+                    document.getElementById("status").innerText = "Error: " + data.message;
+                }
             })
             .catch(error => {
                 document.getElementById("status").innerText = "Error uploading file.";
