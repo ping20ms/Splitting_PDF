@@ -46,8 +46,8 @@ def split_pdf_by_account_month(input_pdf):
     temp_files = []
     for key, writer in split_pdfs.items():
         temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
-        with open(temp_file.name, "wb") as out_file:
-            writer.write(out_file)
+        writer.write(temp_file)
+        temp_file.close()
         temp_files.append(temp_file.name)
     
     return temp_files
@@ -75,7 +75,14 @@ def upload():
         return jsonify({"success": False, "message": "No files were split"}), 500
     
     first_file = split_files[0]
-    return send_file(first_file, as_attachment=True, download_name=os.path.basename(first_file))
+    response = send_file(first_file, as_attachment=True, download_name=os.path.basename(first_file))
+    
+    # Cleanup temporary files
+    os.remove(temp_input.name)
+    for file in split_files:
+        os.remove(file)
+    
+    return response
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
