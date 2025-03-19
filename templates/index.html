@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Splitter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            text-align: center;
+            padding: 50px;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            margin: auto;
+        }
+        h1 {
+            color: #333;
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Split Your PDF</h1>
+        <p>Select a PDF file and click "Upload & Split".</p>
+        <form id="uploadForm" enctype="multipart/form-data">
+            <input type="file" id="pdfFile" name="pdfFile">
+            <button type="submit">Upload & Split</button>
+        </form>
+        <p id="status"></p>
+    </div>
+
+    <script>
+        document.getElementById("uploadForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            let fileInput = document.getElementById("pdfFile");
+
+            if (fileInput.files.length === 0) {
+                document.getElementById("status").innerText = "Please select a file first.";
+                return;
+            }
+
+            let formData = new FormData();
+            formData.append("pdfFile", fileInput.files[0]);
+
+            document.getElementById("status").innerText = "Processing...";
+
+            fetch("/upload", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById("status").innerText = data;
+            })
+            .catch(error => {
+                document.getElementById("status").innerText = "Error uploading file.";
+            });
+        });
+    </script>
+</body>
+</html>
